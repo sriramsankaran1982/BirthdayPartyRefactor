@@ -21,7 +21,7 @@ import scrap.heap.refactor.impl.OrderProcessorImpl;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -32,6 +32,7 @@ public class AppTest {
     @Mock
     OrderProcessorImpl orderProcessor;
     App app;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -39,11 +40,13 @@ public class AppTest {
         app = new App(orderProcessor);
     }
 
-    @Test public void testAppHasAGreeting() {
+    @Test
+    public void testAppHasAGreeting() {
         assertNotNull("app should have a greeting", app.getGreeting());
     }
 
-    @Test public void testCakeBalloon() {
+    @Test
+    public void testCakeBalloon() {
         Order order = new Order();
         order.setCake(new Cake.Builder()
                 .cakeColor(Color.BROWN)
@@ -74,7 +77,8 @@ public class AppTest {
     }
 
 
-    @Test public void testBalloonOnly() {
+    @Test
+    public void testBalloonOnly() {
         Order order = new Order();
         order.setBalloons(Arrays.asList(new Balloon.Builder()
                 .color(Color.RED)
@@ -92,7 +96,8 @@ public class AppTest {
     }
 
 
-    @Test public void testCakeOnly() {
+    @Test
+    public void testCakeOnly() {
         Order order = new Order();
         order.setCake(new Cake.Builder()
                 .cakeColor(Color.BROWN)
