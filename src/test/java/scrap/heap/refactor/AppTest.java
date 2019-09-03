@@ -3,12 +3,115 @@
  */
 package scrap.heap.refactor;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import scrap.heap.refactor.entity.Balloon;
+import scrap.heap.refactor.entity.Cake;
+import scrap.heap.refactor.entity.Color;
+import scrap.heap.refactor.entity.Flavor;
+import scrap.heap.refactor.entity.Material;
+import scrap.heap.refactor.entity.Order;
+import scrap.heap.refactor.entity.Shape;
+import scrap.heap.refactor.entity.Size;
+import scrap.heap.refactor.impl.OrderProcessorImpl;
+
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AppTest {
+    @Mock
+    OrderProcessorImpl orderProcessor;
+    App app;
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        orderProcessor = mock(OrderProcessorImpl.class);
+        app = new App(orderProcessor);
+    }
+
     @Test public void testAppHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+        assertNotNull("app should have a greeting", app.getGreeting());
+    }
+
+    @Test public void testCakeBalloon() {
+        Order order = new Order();
+        order.setCake(new Cake.Builder()
+                .cakeColor(Color.BROWN)
+                .flavor(Flavor.CHOCLATE)
+                .frostingFlavor(Flavor.CHOCLATE)
+                .shape(Shape.CIRCLE)
+                .size(Size.LARGE)
+                .build());
+        order.setBalloons(Arrays.asList(new Balloon.Builder()
+                .color(Color.RED)
+                .material(Material.MYLAR)
+                .number(4)
+                .build()));
+        doCallRealMethod().when(orderProcessor).process(any(Order.class));
+        app.order(order);
+        final ArgumentCaptor<Cake> cakeArgumentCaptor = ArgumentCaptor.forClass(Cake.class);
+        final ArgumentCaptor<Balloon> balloonArgumentCaptor = ArgumentCaptor.forClass(Balloon.class);
+        verify(orderProcessor, times(1)).process(cakeArgumentCaptor.capture());
+        verify(orderProcessor, times(1)).process(balloonArgumentCaptor.capture());
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getFlavor(), Flavor.CHOCLATE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getFrostingFlavor(), Flavor.CHOCLATE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getCakeColor(), Color.BROWN);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getShape(), Shape.CIRCLE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getSize(), Size.LARGE);
+        Assert.assertEquals(balloonArgumentCaptor.getValue().getColor(), Color.RED);
+        Assert.assertEquals(balloonArgumentCaptor.getValue().getMaterial(), Material.MYLAR);
+
+    }
+
+
+    @Test public void testBalloonOnly() {
+        Order order = new Order();
+        order.setBalloons(Arrays.asList(new Balloon.Builder()
+                .color(Color.RED)
+                .material(Material.MYLAR)
+                .number(4)
+                .build()));
+        doCallRealMethod().when(orderProcessor).process(any(Order.class));
+        app.order(order);
+        final ArgumentCaptor<Balloon> balloonArgumentCaptor = ArgumentCaptor.forClass(Balloon.class);
+        verify(orderProcessor, times(0)).process(any(Cake.class));
+        verify(orderProcessor, times(1)).process(balloonArgumentCaptor.capture());
+        Assert.assertEquals(balloonArgumentCaptor.getValue().getColor(), Color.RED);
+        Assert.assertEquals(balloonArgumentCaptor.getValue().getMaterial(), Material.MYLAR);
+
+    }
+
+
+    @Test public void testCakeOnly() {
+        Order order = new Order();
+        order.setCake(new Cake.Builder()
+                .cakeColor(Color.BROWN)
+                .flavor(Flavor.CHOCLATE)
+                .frostingFlavor(Flavor.CHOCLATE)
+                .shape(Shape.CIRCLE)
+                .size(Size.LARGE)
+                .build());
+        doCallRealMethod().when(orderProcessor).process(any(Order.class));
+        app.order(order);
+        final ArgumentCaptor<Cake> cakeArgumentCaptor = ArgumentCaptor.forClass(Cake.class);
+        final ArgumentCaptor<Balloon> balloonArgumentCaptor = ArgumentCaptor.forClass(Balloon.class);
+        verify(orderProcessor, times(1)).process(cakeArgumentCaptor.capture());
+        verify(orderProcessor, times(0)).process(any(Balloon.class));
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getFlavor(), Flavor.CHOCLATE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getFrostingFlavor(), Flavor.CHOCLATE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getCakeColor(), Color.BROWN);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getShape(), Shape.CIRCLE);
+        Assert.assertEquals(cakeArgumentCaptor.getValue().getSize(), Size.LARGE);
+
     }
 }
